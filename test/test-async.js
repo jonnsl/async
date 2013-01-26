@@ -652,7 +652,7 @@ exports['forEachLimit error'] = function(test){
     test.expect(2);
     var arr = [0,1,2,3,4,5,6,7,8,9];
     var call_order = [];
-    
+
     async.forEachLimit(arr, 3, function(x, callback){
         call_order.push(x);
         if (x === 2) {
@@ -1069,68 +1069,6 @@ console_fn_tests('dir');
 console_fn_tests('warn');
 console_fn_tests('error');*/
 
-exports['nextTick'] = function(test){
-    var call_order = [];
-    async.nextTick(function(){call_order.push('two');});
-    call_order.push('one');
-    setTimeout(function(){
-        test.same(call_order, ['one','two']);
-        test.done();
-    }, 50);
-};
-
-exports['nextTick in the browser'] = function(test){
-    if (typeof process !== 'undefined') {
-        // skip this test in node
-        return test.done();
-    }
-    test.expect(1);
-
-    var call_order = [];
-    async.nextTick(function(){call_order.push('two');});
-
-    call_order.push('one');
-    setTimeout(function(){
-        if (typeof process !== 'undefined') {
-            process.nextTick = _nextTick;
-        }
-        test.same(call_order, ['one','two']);
-    }, 50);
-    setTimeout(test.done, 100);
-};
-
-exports['noConflict - node only'] = function(test){
-    if (typeof process !== 'undefined') {
-        // node only test
-        test.expect(3);
-        var fs = require('fs');
-        var filename = __dirname + '/../lib/async.js';
-        fs.readFile(filename, function(err, content){
-            if(err) return test.done();
-
-            // Script -> NodeScript in node v0.6.x
-            var Script = process.binding('evals').Script || process.binding('evals').NodeScript;
-
-            var s = new Script(content, filename);
-            var s2 = new Script(
-                content + 'this.async2 = this.async.noConflict();',
-                filename
-            );
-
-            var sandbox1 = {async: 'oldvalue'};
-            s.runInNewContext(sandbox1);
-            test.ok(sandbox1.async);
-
-            var sandbox2 = {async: 'oldvalue'};
-            s2.runInNewContext(sandbox2);
-            test.equals(sandbox2.async, 'oldvalue');
-            test.ok(sandbox2.async2);
-
-            test.done();
-        });
-    }
-    else test.done();
-};
 
 exports['concat'] = function(test){
     var call_order = [];
@@ -1536,22 +1474,22 @@ exports['memoize custom hash function'] = function (test) {
 // Issue 10 on github: https://github.com/caolan/async/issues#issue/10
 exports['falsy return values in series'] = function (test) {
     function taskFalse(callback) {
-        async.nextTick(function() {
+        process.nextTick(function() {
             callback(null, false);
         });
     };
     function taskUndefined(callback) {
-        async.nextTick(function() {
+        process.nextTick(function() {
             callback(null, undefined);
         });
     };
     function taskEmpty(callback) {
-        async.nextTick(function() {
+        process.nextTick(function() {
             callback(null);
         });
     };
     function taskNull(callback) {
-        async.nextTick(function() {
+        process.nextTick(function() {
             callback(null, null);
         });
     };
@@ -1571,22 +1509,22 @@ exports['falsy return values in series'] = function (test) {
 // Issue 10 on github: https://github.com/caolan/async/issues#issue/10
 exports['falsy return values in parallel'] = function (test) {
     function taskFalse(callback) {
-        async.nextTick(function() {
+        process.nextTick(function() {
             callback(null, false);
         });
     };
     function taskUndefined(callback) {
-        async.nextTick(function() {
+        process.nextTick(function() {
             callback(null, undefined);
         });
     };
     function taskEmpty(callback) {
-        async.nextTick(function() {
+        process.nextTick(function() {
             callback(null);
         });
     };
     function taskNull(callback) {
-        async.nextTick(function() {
+        process.nextTick(function() {
             callback(null, null);
         });
     };
